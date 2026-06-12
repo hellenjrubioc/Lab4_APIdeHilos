@@ -191,11 +191,11 @@ En concordancia con las directrices académicas del curso, declaramos el uso res
 
 ## 8. Conclusiones
 
-* **Distinción entre Concurrencia y Paralelismo:** Se comprobó experimentalmente que el código concurrente requiere soporte físico multinúcleo para alcanzar paralelismo real. Crear hilos por encima de la capacidad de núcleos de la CPU no reduce el tiempo de ejecución; al contrario, degrada la eficiencia debido al fenómeno de sobrecosto por cambios de contexto (*Context Switch Overhead*) impuesto por el planificador del sistema operativo.
-* **Eficacia de la Descomposición Cíclica:** El acceso intercalado en el bucle principal demostró ser una técnica altamente económicamente equitativa para la descomposición de dominio en algoritmos de integración numérica. Al alternar las iteraciones según el ID del hilo y el número total de hilos, se logró una distribución uniforme de la carga computacional, maximizando el uso simultáneo del hardware sin subutilizar núcleos.
-* **Mitigación de Condiciones de Carrera:** El diseño correcto en entornos de memoria compartida exige evitar la escritura desprotegida sobre variables comunes. Aislar los resultados intermedios en estructuras independientes alojadas en el Heap es fundamental para preservar el determinismo del software y prevenir la corrupción silenciosa de datos.
-* **Impacto de la Sincronización Bloqueante:** La primitiva `pthread_join` es indispensable para coordinar el ciclo de vida de los datos entre hilos con relaciones de dependencia lógica. Omitirla introduce condiciones de carrera críticas en el flujo de control que vulneran la integridad de la memoria, provocando salidas inconsistentes (como arreglos vacíos o con basura térmica) o la terminación prematura del proceso (*Segmentation Fault*).
-* **Límites de Escalabilidad (Ley de Amdahl):** La ganancia en velocidad al paralelizar un algoritmo no es infinita ni estrictamente lineal. El rendimiento global está inexorablemente acotado por la porción intrínsecamente secuencial de la aplicación, como la inicialización de memoria mediante `malloc`, las llamadas al sistema para la creación de hilos y la reducción final de los datos realizada por el hilo principal.
+*	La API de Pthreads permite explotar arquitecturas multinúcleo modernas de forma explícita, transformando programas secuenciales limitados por CPU en sistemas distribuidos eficientes a nivel de hilos.
+*	La división del trabajo mediante el método de saltos intercalados (i += num_threads) previene la necesidad de implementar mecanismos costosos de exclusión mutua (Mutexes) en el camino crítico del cálculo iterativo de Pi.
+*	El uso adecuado de funciones de sincronización como pthread_join es fundamental para coordinar la sincronización de flujo; sin ella, se incurre en fallos de coherencia de memoria por condiciones de carrera entre hilos concurrentes.
+*	La memoria del Heap compartida globalmente facilita el paso de arreglos dinámicos entre hilos trabajadores y padres en un mismo espacio de direcciones virtuales, pero añade la responsabilidad estricta de una liberación limpia de recursos.
+*	Un mayor número de hilos no se traduce linealmente en menor tiempo de ejecución; el rendimiento óptimo está condicionado y limitado por la cantidad de núcleos físicos reales que posea el procesador.
 
 
 ## 9. Enlace a Video: https://youtu.be/-pwciEa5U_U
