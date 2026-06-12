@@ -3,6 +3,7 @@
 ## Información del Grupo
 * **Integrantes:** Hellen Jakeline Rubio Casas
 * **Correos Electrónicos:** hellen.rubio@udea.edu.co
+* Se elige omitir ID en repositorio*
 
 ---
 
@@ -195,3 +196,10 @@ En concordancia con las directrices académicas del curso, declaramos el uso res
 * **Mitigación de Condiciones de Carrera:** El diseño correcto en entornos de memoria compartida exige evitar la escritura desprotegida sobre variables comunes. Aislar los resultados intermedios en estructuras independientes alojadas en el Heap es fundamental para preservar el determinismo del software y prevenir la corrupción silenciosa de datos.
 * **Impacto de la Sincronización Bloqueante:** La primitiva `pthread_join` es indispensable para coordinar el ciclo de vida de los datos entre hilos con relaciones de dependencia lógica. Omitirla introduce condiciones de carrera críticas en el flujo de control que vulneran la integridad de la memoria, provocando salidas inconsistentes (como arreglos vacíos o con basura térmica) o la terminación prematura del proceso (*Segmentation Fault*).
 * **Límites de Escalabilidad (Ley de Amdahl):** La ganancia en velocidad al paralelizar un algoritmo no es infinita ni estrictamente lineal. El rendimiento global está inexorablemente acotado por la porción intrínsecamente secuencial de la aplicación, como la inicialización de memoria mediante `malloc`, las llamadas al sistema para la creación de hilos y la reducción final de los datos realizada por el hilo principal.
+
+
+## 9. Enlace a Video: https://youtu.be/-pwciEa5U_U
+
+
+
+
