@@ -74,9 +74,11 @@ El comportamiento de la aceleración respecto al número de hilos se describe me
 
 ### 4.1. Sección 1: Análisis de π
 
-[Aquí va tu Tabla de Resultados de Pi]
+<img width="637" height="824" alt="image" src="https://github.com/user-attachments/assets/accc3b50-c89a-4e75-b07b-d82198ab755f" />
 
-[Aquí va el Gráfico de Speedup]
+
+<img width="538" height="397" alt="image" src="https://github.com/user-attachments/assets/1d67c31d-2845-4a1a-b68d-66102874fc93" />
+
 
 #### Análisis Crítico de Resultados de π
 * **Comparación $T_p(1)$ vs. $T_s$:** Empíricamente, $T_p(1)$ (`6.368858 s`) fue ligeramente menor que $T_s$ (`6.718851 s`). Esto se debe a que el compilador `gcc`, al procesar las variables estructuradas locales dentro de la función de trabajo aislada `ThreadCalcPi`, generó optimizaciones de bajo nivel en el mapeo de registros de la CPU que lograron mitigar y superar el costo inercial del *overhead* de la API Pthreads.
@@ -85,19 +87,9 @@ El comportamiento de la aceleración respecto al número de hilos se describe me
 
 ---
 
-### 4.2. Sección 2: Análisis del Diseño de Fibonacci
+### 4.2. Análisis de Fibonacci
 
-[Aquí va la salida de pantalla de `./fibonacci 15`]
-
-#### Respuestas de Diseño de Fibonacci
-* **Cálculo sin hilos para un $N$ grande ($>100\times10^3$):** La complejidad temporal se mantiene en $\mathcal{O}(N)$. No obstante, el problema crítico en el sistema operativo no es el tiempo de CPU, sino el **desbordamiento aritmético** (*integer overflow*). Como la serie crece de forma exponencial geométrica en base a la proporción áurea ($\phi^N$), los tipos primitivos de 64 bits (`long` o `unsigned long long`) sufren una saturación crítica en el término número 94, causando truncamiento de bits y arrojando valores residuales basura o negativos.
-* **Mecanismo de Transferencia de Datos:** Se encapsulan los argumentos en la estructura `fib_args_t` (que contiene el puntero `long *array` y el entero `int n`). Tras reservar memoria dinámica en el `main` con `malloc`, se pasa la dirección de esta estructura por referencia como el cuarto argumento de `pthread_create`. El hilo trabajador recibe un puntero genérico `void *arg` y realiza un moldeo de tipo directo (`(fib_args_t *)arg`) para operar sobre el mismo segmento de memoria compartida.
-* **Rol de `pthread_join` como Sincronización:** Actúa como una primitiva de **sincronización de barrera bloqueante**. Dado que los hilos se planifican de forma asíncrona, si `main` no se bloqueara, leería e imprimiría el arreglo antes de que el hilo hijo terminara de calcular, resultando en datos corruptos, ceros o basura. `pthread_join` suspende al hilo padre en la *Ready Queue* del Kernel y asegura de manera determinista la consistencia de los datos antes de su lectura.
----
-
-## 5. Análisis de Fibonacci
-
-#### 5.1. Resultados de Ejecución
+#### Resultados de Ejecución
 Al ejecutar la aplicación multihilo con un argumento de ingreso de 15 elementos, la terminal de Linux arrojó la siguiente salida exacta y consistente:
 
 ######bash
@@ -106,7 +98,7 @@ Secuencia de Fibonacci (15 elementos):
 0 1 1 2 3 5 8 13 21 34 
 55 89 144 233 377
 
-#### 5.2. Análisis del Diseño de Fibonacci
+#### Análisis del Diseño de Fibonacci
 
 - **Cálculo de la serie sin hilos para un N grande (> 100 × 10³ valores):** Una rutina iterativa lineal tradicional computa la serie en un orden de complejidad temporal de \( O(N) \). Sin embargo, al probar el algoritmo con un volumen superior a 100,000 elementos, el cuello de botella del sistema operativo no se manifiesta en el tiempo de CPU, sino en el **desbordamiento aritmético (integer overflow)**. Dado que la serie de Fibonacci crece a una tasa exponencial geométrica guiada por la proporción áurea (\( \phi^N \)), las variables primitivas de almacenamiento de 64 bits más grandes del hardware (`unsigned long long` o `long`) sufren una saturación crítica de bits al intentar procesar el término número 94. A partir de allí, la memoria sufre un truncamiento cíclico perdiendo la integridad de la información y arrojando valores negativos o erráticos.
 
@@ -114,7 +106,7 @@ Secuencia de Fibonacci (15 elementos):
 
 - **Rol de `pthread_join` como mecanismo de sincronización:** Funciona como una primitiva de sincronización de barrera bloqueante. Debido a la naturaleza asíncrona de los hilos, el hilo principal y el hilo trabajador compiten por el tiempo de CPU de forma independiente. Si se omitiera `pthread_join`, el hilo `main` avanzaría inmediatamente a ejecutar su rutina de lectura e impresión en pantalla mientras el hilo hijo apenas se está inicializando en el Planificador del sistema operativo. Esto provocaría una condición de carrera donde se imprimirían valores basura o ceros. Al invocar a `pthread_join`, el Kernel remueve al hilo principal de la cola de ejecución (*Ready Queue*) y lo suspende hasta que el hilo trabajador emita su señal de salida (`return NULL`). Esto garantiza de forma determinista la consistencia y llenado completo del arreglo compartido antes de cualquier intento de lectura.
 
-## 6. Pruebas Realizadas y Verificación Funcional
+## 5. Pruebas Realizadas y Verificación Funcional
 
 A continuación, se documenta la bitácora exacta de las pruebas ejecutadas en la terminal del sistema operativo Linux Mint para validar la robustez y consistencia de las soluciones implementadas:
 
@@ -191,7 +183,7 @@ La eficiencia disminuye progresivamente a medida que aumenta el número de hilos
 
 El speedup máximo alcanzado fue de **3.443×** utilizando **4 hilos**. Si el equipo dispone de 4 núcleos físicos, este resultado es coherente con la capacidad real de paralelización del hardware. El deterioro observado para 8 y 16 hilos indica que se está excediendo el grado óptimo de paralelismo para esta carga de trabajo específica.
 
-## 7. Problemas Presentados y Soluciones Desarrolladas
+## 6. Problemas Presentados y Soluciones Desarrolladas
 
 - **Problema 1: Resultados erráticos e inconsistentes en `pi_p.c` (Condición de Carrera)**
 
@@ -207,7 +199,7 @@ El speedup máximo alcanzado fue de **3.443×** utilizando **4 hilos**. Si el eq
 
 ---
 
-## 8. Manifiesto de Transparencia e Inteligencia Artificial
+## 7. Manifiesto de Transparencia e Inteligencia Artificial
 
 En concordancia con las directrices académicas del curso, declaramos el uso responsable de asistentes basados en Inteligencia Artificial Generativa bajo las siguientes condiciones y parámetros de apoyo:
 
@@ -225,7 +217,7 @@ En concordancia con las directrices académicas del curso, declaramos el uso res
 
 ---
 
-## 9. Conclusiones
+## 8. Conclusiones
 
 - **Distinción entre Concurrencia y Paralelismo:** Se comprobó experimentalmente que el código concurrente requiere soporte físico multinúcleo para alcanzar paralelismo real. Crear hilos por encima de la capacidad de núcleos de la CPU no reduce el tiempo de ejecución; al contrario, degrada la eficiencia debido al fenómeno de sobrecosto por cambios de contexto (*Context Switch Overhead*) impuesto por el planificador del sistema operativo.
 
